@@ -5,9 +5,9 @@ import 'package:virtual_clock/virtual_clock.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUp(() {
+  setUp(() async {
     SharedPreferences.setMockInitialValues({});
-    VirtualClock.reset();
+    await VirtualClock.reset();
   });
 
   group('VirtualClock Global Accessor', () {
@@ -22,36 +22,30 @@ void main() {
     });
 
     test('returns service after initialization', () async {
-      // Arrange
-      final clockService = ClockService();
-      await clockService.initialize(const ClockConfig());
-
       // Act
-      VirtualClock.initialize(clockService);
+      await VirtualClock.setup(const ClockConfig(clockRate: 100));
 
       // Assert
-      expect(VirtualClock.service, clockService);
+      expect(VirtualClock.service.clockRate, 100);
       expect(VirtualClock.isInitialized, true);
     });
 
     test('clock getter works after initialization', () async {
       // Arrange
-      final clockService = ClockService();
-      await clockService.initialize(const ClockConfig());
-      VirtualClock.initialize(clockService);
+      await VirtualClock.setup(const ClockConfig(clockRate: 100));
 
       // Act & Assert
-      expect(clock, clockService);
+      expect(clock.clockRate, 100);
     });
 
     test('reset clears global service', () async {
       // Arrange
       final clockService = ClockService();
       await clockService.initialize(const ClockConfig());
-      VirtualClock.initialize(clockService);
+      await VirtualClock.setup(const ClockConfig(clockRate: 100));
 
       // Act
-      VirtualClock.reset();
+      await VirtualClock.reset();
 
       // Assert
       expect(VirtualClock.isInitialized, false);
@@ -60,12 +54,8 @@ void main() {
   });
 
   group('VirtualClockX DateTime Extensions', () {
-    late ClockService clockService;
-
     setUp(() async {
-      clockService = ClockService();
-      await clockService.initialize(const ClockConfig(clockRate: 100));
-      VirtualClock.initialize(clockService);
+      await VirtualClock.setup(const ClockConfig(clockRate: 100));
     });
 
     test('isVirtualToday returns true for today', () {
@@ -150,18 +140,6 @@ void main() {
       // Assert (allow for slight timing variance)
       expect(diff.inDays, greaterThanOrEqualTo(6));
       expect(diff.inDays, lessThanOrEqualTo(7));
-    });
-
-    test('extensions accept optional clockService parameter', () async {
-      // Arrange
-      final otherClock = ClockService();
-      await otherClock.initialize(const ClockConfig());
-      otherClock.timeTravelTo(DateTime(2030));
-
-      final date = DateTime(2030, 1, 1, 12);
-
-      // Act & Assert
-      expect(date.isVirtualToday(otherClock), true);
     });
   });
 }

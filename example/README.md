@@ -10,7 +10,7 @@ A Flutter application demonstrating all features of the `virtual_clock` package.
 | **HTTP Guard** | Protect network calls during time acceleration |
 | **Virtual Timer** | Timers that respect clock acceleration |
 | **DateTime Extensions** | Virtual-time aware date comparisons |
-| **TimeControlPanelOverlay** | Slide-out panel for global time control |
+| **TimeMachine** | Slide-out panel for global time control |
 
 ## Running the Example
 
@@ -38,15 +38,41 @@ lib/
 
 ## Key Integration Points
 
-### 1. Root-Level Overlay
+### 1. Initialization & Overlay
 
-The app wraps `MaterialApp` with `TimeControlPanelOverlay` for global access:
+Initialize the global clock in `main()` and wrap your app:
 
 ```dart
-TimeControlPanelOverlay(
-  forceShow: true,  // Always show in example app
-  child: MaterialApp(...),
-)
+void main() async {
+  // 1. Initialize global clock
+  await VirtualClock.setup(
+    const ClockConfig(
+      clockRate: 100,
+      appVersion: '1.0.0+1',
+    ),
+  );
+
+  runApp(
+    MultiProvider(
+      providers: [
+        // 2. Provide the service
+        ChangeNotifierProvider.value(value: VirtualClock.service)
+      ],
+      child: const VirtualClockExampleApp(),
+    ),
+  );
+}
+
+// 3. Wrap MaterialApp
+class VirtualClockExampleApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return TimeMachine(
+      forceShow: true,
+      child: MaterialApp(...),
+    );
+  }
+}
 ```
 
 ### 2. Event Subscriptions

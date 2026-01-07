@@ -29,7 +29,6 @@ import 'package:virtual_clock/virtual_clock.dart';
 class TimeControlPanel extends StatefulWidget {
   const TimeControlPanel({
     super.key,
-    this.clockService,
     this.theme = const TimeControlTheme(),
     this.themeMode = TimeControlThemeMode.system,
     this.clockIcon,
@@ -38,9 +37,6 @@ class TimeControlPanel extends StatefulWidget {
     this.onClose,
     this.showBorder = true,
   });
-
-  /// The ClockService to control. If null, uses global [clock].
-  final ClockService? clockService;
 
   /// Theme configuration for colors and styling.
   /// Use with [themeMode] for automatic light/dark support.
@@ -80,7 +76,7 @@ class _TimeControlPanelState extends State<TimeControlPanel>
   final Map<String, bool> _jumpButtonHovered = {};
   final Map<String, bool> _dateButtonHovered = {};
 
-  ClockService get _clock => widget.clockService ?? clock;
+  ClockService get _clock => clock;
 
   /// Resolve theme based on theme mode and system brightness.
   TimeControlTheme _resolveTheme(BuildContext context) {

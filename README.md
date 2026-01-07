@@ -18,7 +18,7 @@ A Flutter package for virtual time manipulation and acceleration. Perfect for te
 - **Production Safe** - Debug-mode only by default, forced to 1x in release builds
 - **Virtual Timers** - Timer wrappers that respect accelerated time
 - **DateTime Extensions** - Convenient extensions for virtual time comparisons
-- **Debug UI Panel** - Built-in TimeControlPanel widget for visual time control
+- **Debug UI** - Built-in TimeMachine widget for visual time control
 
 ## Use Cases
 
@@ -51,15 +51,13 @@ flutter pub get
 import 'package:virtual_clock/virtual_clock.dart';
 
 void main() async {
-  // 1. Create and initialize the clock service
-  final clockService = ClockService();
-  await clockService.initialize(ClockConfig(
-    clockRate: 100,  // 100x speed: 1 real minute = 100 virtual minutes
-    appVersion: '1.0.0+1',  // For auto-reset on version changes
-  ));
-
-  // 2. Set up global accessor (optional but recommended)
-  VirtualClock.initialize(clockService);
+  // 1. Initialize the global clock
+  await VirtualClock.setup(
+    const ClockConfig(
+      clockRate: 100,  // 100x speed: 1 real minute = 100 virtual minutes
+      appVersion: '1.0.0+1',  // For auto-reset on version changes
+    ),
+  );
 
   // 3. Use virtual time anywhere
   final now = clock.now;
@@ -78,19 +76,15 @@ import 'package:virtual_clock/virtual_clock.dart';
 final getIt = GetIt.instance;
 
 Future<void> setupLocator() async {
-  // Register ClockService FIRST (other services may depend on time)
-  final clockService = ClockService();
-  getIt.registerSingleton<ClockService>(clockService);
-
   // Initialize
-  await clockService.initialize(ClockConfig(
+  await VirtualClock.setup(ClockConfig(
     clockRate: int.parse(dotenv.env['CLOCK_RATE'] ?? '1'),
     appVersion: packageInfo.version,
     isProduction: dotenv.env['APP_ENV'] == 'production',
   ));
 
-  // Set up global accessor
-  VirtualClock.initialize(clockService);
+  // Register ClockService (optional, if you want dependency injection)
+  getIt.registerSingleton<ClockService>(VirtualClock.service);
 }
 ```
 
@@ -104,7 +98,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<ClockService>.value(
-      value: clockService,  // Your initialized ClockService
+      value: VirtualClock.service,
       child: MaterialApp(
         home: HomePage(),
       ),
@@ -277,7 +271,7 @@ Control HTTP requests during accelerated time to prevent accidental API calls:
 ### Configuration
 
 ```dart
-await clockService.initialize(ClockConfig(
+await VirtualClock.setup(ClockConfig(
   clockRate: 100,
   httpPolicy: HttpAction.throttle,
   httpThrottleLimit: 10,  // Max 10 requests per real minute
@@ -391,78 +385,25 @@ if (someDate.isDifferentFromVirtualNow()) {
 }
 ```
 
-## TimeControlPanel Widget
+## Debug UI
 
-A built-in debug UI for controlling virtual time during development:
+### TimeMachine Widget
 
-### Basic Usage
+A slide-out panel wrapper that provides global time control anywhere in your app. This is the recommended way to add the debug interface.
 
-```dart
-// Add to your debug overlay or settings screen
-TimeControlPanel()
-```
-
-### Customization
-
-```dart
-TimeControlPanel(
-  clockService: myClockService,  // Optional, uses global clock by default
-  themeMode: TimeControlThemeMode.dark,  // system, light, or dark
-  theme: TimeControlTheme(
-    accentColor: Colors.blue,  // Override specific colors
-  ),
-  embedded: true,  // For embedding in other layouts
-  showBorder: true,
-  isOpen: true,
-  onClose: () => Navigator.pop(context),
-)
-```
-
-### Features
-
-- Current virtual time display with live updates
-- Speed badge showing current clock rate
-- Quick jump buttons (+1h, +3h, +6h, +1d, +3d, +1w)
-- Tomorrow button
-- Date/time picker
-- Pause/Resume button
-- Reset button
-
-### Theming
-
-Use pre-built themes or customize:
-
-```dart
-// Pre-built themes
-TimeControlTheme.dark
-TimeControlTheme.light
-
-// Custom theme
-TimeControlTheme(
-  backgroundColor: Color(0xFF1A1A2E),
-  accentColor: Color(0xFF4ADE80),
-  textPrimary: Colors.white,
-  buttonRadius: 12.0,
-)
-```
-
-## TimeControlPanelOverlay Widget
-
-A slide-out panel wrapper that provides global time control anywhere in your app:
-
-### Basic Usage
+#### Basic Usage
 
 Wrap your entire app with the overlay for global access:
 
 ```dart
-TimeControlPanelOverlay(
+TimeMachine(
   child: MaterialApp(
     home: MyHomeScreen(),
   ),
 )
 ```
 
-### Features
+#### Features
 
 - **Slide-out Panel**: Animated slide-in/out from right edge
 - **Dark Overlay**: Semi-transparent background when open (tap to dismiss)
@@ -470,12 +411,11 @@ TimeControlPanelOverlay(
 - **Toggle Button**: Persistent button attached to panel edge
 - **Production Safety**: Hidden in release mode unless `forceShow: true`
 
-### Customization
+#### Customization
 
 ```dart
-TimeControlPanelOverlay(
+TimeMachine(
   child: MyApp(),
-  clockService: myClockService,  // Optional, uses global clock by default
   panelWidth: 200,  // Width of the slide-out panel
   theme: TimeControlTheme(...),  // Panel theming
   themeMode: TimeControlThemeMode.dark,
@@ -485,6 +425,32 @@ TimeControlPanelOverlay(
     // Custom toggle button
     return Icon(isOpen ? Icons.close : Icons.menu);
   },
+)
+```
+
+### TimeControlPanel (Embedded)
+
+For more complex layouts where you want to embed the controls directly into your own UI (not as an overlay), use `TimeControlPanel`.
+
+#### Usage
+
+```dart
+// Add to your debug settings screen or custom drawer
+TimeControlPanel()
+```
+
+#### Customization
+
+```dart
+TimeControlPanel(
+  themeMode: TimeControlThemeMode.dark,
+  theme: TimeControlTheme(
+    accentColor: Colors.blue,
+  ),
+  embedded: true,
+  showBorder: true,
+  isOpen: true,
+  onClose: () => Navigator.pop(context),
 )
 ```
 
@@ -535,7 +501,7 @@ CLOCK_RATE=100
 APP_ENV=develop
 
 // In your app
-await clockService.initialize(ClockConfig(
+await VirtualClock.setup(ClockConfig(
   clockRate: int.parse(dotenv.env['CLOCK_RATE'] ?? '1'),
   isProduction: dotenv.env['APP_ENV'] == 'production',
   appVersion: packageInfo.version,
@@ -555,16 +521,16 @@ The package includes multiple safety layers:
 
 ```dart
 // This will work only in debug mode
-await clockService.initialize(ClockConfig(clockRate: 100));
+await VirtualClock.setup(ClockConfig(clockRate: 100));
 
 // This will throw in production
-await clockService.initialize(ClockConfig(
+await VirtualClock.setup(ClockConfig(
   clockRate: 100,
   isProduction: true,  // Will throw!
 ));
 
 // Force enable in release mode (use with extreme caution!)
-await clockService.initialize(ClockConfig(
+await VirtualClock.setup(ClockConfig(
   clockRate: 100,
   forceEnable: true,  // Bypasses debug-mode restriction
 ));
@@ -611,9 +577,8 @@ void main() {
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
-    clockService = ClockService();
-    await clockService.initialize(ClockConfig(clockRate: 100));
-    VirtualClock.initialize(clockService);
+    await VirtualClock.setup(ClockConfig(clockRate: 100));
+    clockService = VirtualClock.service;
   });
 
   tearDown(() {
@@ -670,7 +635,7 @@ void main() {
 // Testing a 7-day streak feature
 test('streak unlocks after 7 consecutive days', () async {
   // Initialize with 1000x speed (1 virtual day = ~86 seconds)
-  await clockService.initialize(ClockConfig(clockRate: 1000));
+  await VirtualClock.setup(ClockConfig(clockRate: 1000));
 
   // Simulate 7 days of activity
   for (int day = 0; day < 7; day++) {
@@ -701,7 +666,7 @@ test('streak unlocks after 7 consecutive days', () async {
 
 | Method | Description |
 |--------|-------------|
-| `initialize(ClockConfig)` | Initialize the clock service |
+| `setup(ClockConfig)` | Initialize the clock service |
 | `timeTravelTo(DateTime)` | Jump to specific date/time |
 | `fastForward(Duration)` | Skip ahead by duration |
 | `pause()` | Freeze time |
@@ -726,7 +691,7 @@ test('streak unlocks after 7 consecutive days', () async {
 
 | Method | Description |
 |--------|-------------|
-| `initialize(ClockService)` | Set up global accessor |
+| `setup(ClockConfig)` | Initialize both clock service and accessor |
 | `service` | Get the global ClockService |
 | `isInitialized` | Check if initialized |
 | `reset()` | Clear global instance |
@@ -768,7 +733,7 @@ test('streak unlocks after 7 consecutive days', () async {
 
 1. Check if you're in release mode (`kReleaseMode` forces rate to 1)
 2. Verify `isProduction` is not set to `true`
-3. Ensure `initialize()` was called before using the clock
+3. Ensure `setup()` was called before using the clock
 4. In release/profile mode, set `forceEnable: true` if you really need acceleration
 
 ### Virtual time reset unexpectedly?
@@ -777,7 +742,7 @@ The clock auto-resets when the app version changes. This is intentional to preve
 
 ### Getting `StateError: VirtualClock not initialized`?
 
-Make sure to call `VirtualClock.initialize(clockService)` after initializing your ClockService.
+Make sure to call `VirtualClock.setup(clockConfig)`.
 
 ### Events not firing?
 

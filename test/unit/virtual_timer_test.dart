@@ -7,9 +7,9 @@ import 'package:virtual_clock/virtual_clock.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUp(() {
+  setUp(() async {
     SharedPreferences.setMockInitialValues({});
-    VirtualClock.reset();
+    await VirtualClock.reset();
   });
 
   group('VirtualTimer.periodic', () {
@@ -137,9 +137,7 @@ void main() {
   group('VirtualTimer with global clock', () {
     test('periodicWithClock uses global clock', () async {
       // Arrange
-      final clockService = ClockService();
-      await clockService.initialize(const ClockConfig(clockRate: 100));
-      VirtualClock.initialize(clockService);
+      await VirtualClock.setup(const ClockConfig(clockRate: 100));
 
       var callCount = 0;
 
@@ -161,9 +159,7 @@ void main() {
 
     test('delayedWithClock uses global clock', () async {
       // Arrange
-      final clockService = ClockService();
-      await clockService.initialize(const ClockConfig(clockRate: 100));
-      VirtualClock.initialize(clockService);
+      await VirtualClock.setup(const ClockConfig(clockRate: 100));
 
       var fired = false;
 
@@ -182,9 +178,7 @@ void main() {
 
     test('waitWithClock uses global clock', () async {
       // Arrange
-      final clockService = ClockService();
-      await clockService.initialize(const ClockConfig(clockRate: 100));
-      VirtualClock.initialize(clockService);
+      await VirtualClock.setup(const ClockConfig(clockRate: 100));
 
       var completed = false;
 

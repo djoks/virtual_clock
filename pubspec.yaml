@@ -1,9 +1,21 @@
 name: virtual_clock
-description: A Flutter package for virtual time manipulation. Speed up, pause, or travel through time to test streaks, bonuses, and scheduled other events.
-version: 1.0.0-dev.2
+description: A Flutter package for virtual time manipulation. Speed up, pause, or travel through time to test streaks, bonuses, and other scheduled events.
+version: 1.0.0-dev.3
 homepage: https://github.com/djoks/virtual_clock
 repository: https://github.com/djoks/virtual_clock
+
 issue_tracker: https://github.com/djoks/virtual_clock/issues
+screenshots:
+  - description: 'Slide-out TimeMachine panel with acceleration, time travel, and pause controls'
+    path: screenshots/time_machine_controls.png
+  - description: 'Example app home screen showing available virtual clock features'
+    path: screenshots/home_features.png
+  - description: 'HTTP Guard demonstration for testing network behavior during acceleration'
+    path: screenshots/http_guard.png
+  - description: 'Event subscription monitoring for scheduling tests'
+    path: screenshots/event_subscriptions.png
+  - description: 'DateTime extensions for virtual-time aware comparisons'
+    path: screenshots/datetime_extensions.png
 
 environment:
   sdk: ">=3.0.0 <4.0.0"

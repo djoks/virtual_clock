@@ -30,7 +30,6 @@ class TimeControlPanelOverlay extends StatefulWidget {
   const TimeControlPanelOverlay({
     required this.child,
     super.key,
-    this.clockService,
     this.panelWidth = 200,
     this.theme = const TimeControlTheme(),
     this.themeMode = TimeControlThemeMode.system,
@@ -41,9 +40,6 @@ class TimeControlPanelOverlay extends StatefulWidget {
 
   /// The main app content to display behind the panel.
   final Widget child;
-
-  /// The ClockService to control. If null, uses global [clock].
-  final ClockService? clockService;
 
   /// Width of the slide-out panel.
   final double panelWidth;
@@ -77,7 +73,7 @@ class _TimeControlPanelOverlayState extends State<TimeControlPanelOverlay>
   late AnimationController _panelController;
   bool _isPanelOpen = false;
 
-  ClockService get _clock => widget.clockService ?? clock;
+  ClockService get _clock => clock;
 
   /// Whether to show the panel based on production mode and clock rate.
   bool get _shouldShow {
@@ -223,7 +219,6 @@ class _TimeControlPanelOverlayState extends State<TimeControlPanelOverlay>
             SizedBox(
               width: panelWidth,
               child: TimeControlPanel(
-                clockService: widget.clockService,
                 theme: widget.theme,
                 themeMode: widget.themeMode,
                 embedded: true,

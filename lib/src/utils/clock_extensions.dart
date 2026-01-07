@@ -8,9 +8,10 @@ import 'package:virtual_clock/src/services/clock_service.dart';
 ///
 /// Initialize once during app startup:
 /// ```dart
-/// final clockService = ClockService();
-/// await clockService.initialize(ClockConfig(clockRate: 100));
-/// VirtualClock.initialize(clockService);
+/// ```dart
+/// await VirtualClock.initialize(
+///   const ClockConfig(clockRate: 100),
+/// );
 /// ```
 ///
 /// ## Usage
@@ -38,41 +39,48 @@ class VirtualClock {
 
   static ClockService? _service;
 
-  /// Initialize the global clock accessor with a ClockService instance.
+  /// Initialize the global clock with configuration.
   ///
-  /// This should be called once during app startup after the ClockService
-  /// has been initialized.
+  /// This should be called once during app startup.
   ///
   /// Example:
   /// ```dart
-  /// final clockService = ClockService();
-  /// await clockService.initialize(ClockConfig(clockRate: 100));
-  /// VirtualClock.initialize(clockService);
+  /// await VirtualClock.setup(
+  ///   const ClockConfig(clockRate: 100),
+  /// );
   /// ```
-  static void initialize(ClockService clockService) {
-    _service = clockService;
+  static Future<void> setup(ClockConfig config) async {
+    _service ??= ClockService();
+    await _service!.initialize(config);
   }
 
   /// Get the global ClockService instance.
   ///
-  /// Throws [StateError] if [initialize] hasn't been called.
+  /// Returns the singleton instance.
+  /// Throws [StateError] if [setup] hasn't been called.
   static ClockService get service {
     if (_service == null) {
       throw StateError(
-        'VirtualClock not initialized. Call VirtualClock.initialize() first.',
+        'VirtualClock not initialized. Call VirtualClock.setup() first.',
       );
     }
     return _service!;
   }
 
   /// Check if the global clock has been initialized.
-  static bool get isInitialized => _service != null;
+  static bool get isInitialized => _service != null && _service!.isInitialized;
 
-  /// Reset the global clock instance.
+  /// Reset the global clock.
   ///
-  /// Useful for testing to reset state between tests.
-  static void reset() {
-    _service = null;
+  /// Disposes the current service and clears the instance.
+  /// Useful for testing to ensure a clean state.
+  static Future<void> reset() async {
+    if (_service != null) {
+      _service!.dispose();
+      // Also clear persisted state if needed, or rely on ClockService.clearAllState() if we want deep clean?
+      // For now, dispose stops timers.
+      _service = null;
+    }
   }
 }
 
@@ -84,9 +92,9 @@ class VirtualClock {
 ///
 /// Before using, you must initialize the global clock:
 /// ```dart
-/// final clockService = ClockService();
-/// await clockService.initialize(ClockConfig(clockRate: 100));
-/// VirtualClock.initialize(clockService);
+/// await VirtualClock.initialize(
+///   const ClockConfig(clockRate: 100),
+/// );
 /// ```
 ///
 /// ## Usage
@@ -125,8 +133,8 @@ extension VirtualClockX on DateTime {
   /// Allows 1 second tolerance for timing differences.
   ///
   /// Requires the global clock to be initialized.
-  bool isDifferentFromVirtualNow([ClockService? clockService]) {
-    final service = clockService ?? VirtualClock.service;
+  bool isDifferentFromVirtualNow() {
+    final service = VirtualClock.service;
     final currentTime = service.now;
     return difference(currentTime).abs() > const Duration(seconds: 1);
   }
@@ -136,8 +144,8 @@ extension VirtualClockX on DateTime {
   /// Returns true if this DateTime is before the current virtual time.
   ///
   /// Requires the global clock to be initialized.
-  bool isInVirtualPast([ClockService? clockService]) {
-    final service = clockService ?? VirtualClock.service;
+  bool isInVirtualPast() {
+    final service = VirtualClock.service;
     return isBefore(service.now);
   }
 
@@ -146,8 +154,8 @@ extension VirtualClockX on DateTime {
   /// Returns true if this DateTime is after the current virtual time.
   ///
   /// Requires the global clock to be initialized.
-  bool isInVirtualFuture([ClockService? clockService]) {
-    final service = clockService ?? VirtualClock.service;
+  bool isInVirtualFuture() {
+    final service = VirtualClock.service;
     return isAfter(service.now);
   }
 
@@ -157,8 +165,8 @@ extension VirtualClockX on DateTime {
   /// the current virtual time.
   ///
   /// Requires the global clock to be initialized.
-  bool isVirtualToday([ClockService? clockService]) {
-    final service = clockService ?? VirtualClock.service;
+  bool isVirtualToday() {
+    final service = VirtualClock.service;
     final now = service.now;
     return year == now.year && month == now.month && day == now.day;
   }
@@ -169,8 +177,8 @@ extension VirtualClockX on DateTime {
   /// in virtual time.
   ///
   /// Requires the global clock to be initialized.
-  bool isVirtualYesterday([ClockService? clockService]) {
-    final service = clockService ?? VirtualClock.service;
+  bool isVirtualYesterday() {
+    final service = VirtualClock.service;
     final yesterday = service.now.subtract(const Duration(days: 1));
     return year == yesterday.year &&
         month == yesterday.month &&
@@ -183,8 +191,8 @@ extension VirtualClockX on DateTime {
   /// Negative duration means this DateTime is in the virtual past.
   ///
   /// Requires the global clock to be initialized.
-  Duration differenceFromVirtualNow([ClockService? clockService]) {
-    final service = clockService ?? VirtualClock.service;
+  Duration differenceFromVirtualNow() {
+    final service = VirtualClock.service;
     return difference(service.now);
   }
 }

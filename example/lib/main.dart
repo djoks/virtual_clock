@@ -10,9 +10,8 @@ import 'package:virtual_clock_example/ui/views/timer_view.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize ClockService
-  final clockService = ClockService();
-  await clockService.initialize(
+  // Initialize global clock
+  await VirtualClock.setup(
     const ClockConfig(
       clockRate: 100, // Start with accelerated time for demo
       httpPolicy: HttpAction.block,
@@ -20,12 +19,9 @@ void main() async {
     ),
   );
 
-  // Initialize global accessor
-  VirtualClock.initialize(clockService);
-
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider.value(value: clockService)],
+      providers: [ChangeNotifierProvider.value(value: VirtualClock.service)],
       child: const VirtualClockExampleApp(),
     ),
   );
@@ -36,7 +32,7 @@ class VirtualClockExampleApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TimeControlPanelOverlay(
+    return TimeMachine(
       forceShow: true, // Always show in example app
       child: MaterialApp(
         title: 'Virtual Clock Example',

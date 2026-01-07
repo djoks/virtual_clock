@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0-dev.3] - 2026-01-07
+
+### Added
+- `TimeMachine` widget - A new public wrapper for the debug overlay, replacing direct usage of `TimeControlPanelOverlay`.
+- `VirtualClock.setup(ClockConfig)` - Simplified initialization method properly accepting configuration.
+
+### Changed
+- **BREAKING**: Renamed `VirtualClock.initialize` to `VirtualClock.setup`.
+- **BREAKING**: Removed `clockService` parameter from `TimeMachine`, `TimeControlPanelOverlay`, and `TimeControlPanel`. These widgets now strictly use the internal singleton service accessed via the global `clock` getter.
+- **BREAKING**: Made `TimeControlPanelOverlay` internal. Use `TimeMachine` instead.
+- Refactored `VirtualClock` to manage its own singleton `ClockService` instance. Manual injection is no longer supported.
+
 ## [1.0.0-dev.2] - 2026-01-07
 
 ### Added
