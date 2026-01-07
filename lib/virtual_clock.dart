@@ -96,13 +96,13 @@
 /// ```
 library;
 
+// Constants
+export 'src/constants/constants.dart';
+
 // Enums
 export 'src/enums/clock_state.dart';
 export 'src/enums/http_action.dart';
 export 'src/enums/log_level.dart';
-
-// Constants
-export 'src/constants/constants.dart';
 
 // Events
 export 'src/events/events.dart';

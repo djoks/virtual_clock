@@ -60,7 +60,7 @@ export 'package:virtual_clock/src/models/clock_config.dart';
 class ClockService extends ChangeNotifier {
   // Configuration
   int _clockRate = 1;
-  DateTime? _baseRealTime;
+  late DateTime? _baseRealTime;
   DateTime? _baseVirtualTime;
   ClockState _state = ClockState.running;
   DateTime? _pausedAt;
