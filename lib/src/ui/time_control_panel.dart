@@ -495,15 +495,7 @@ class _TimeControlPanelState extends State<TimeControlPanel>
       child: GestureDetector(
         onTap: () async {
           await _clock.reset();
-          if (mounted) {
-            setState(() {});
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(kSnackbarTimeReset),
-                duration: Duration(seconds: 1),
-              ),
-            );
-          }
+          if (mounted) setState(() {});
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: kAnimationDurationHover),
