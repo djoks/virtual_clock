@@ -115,6 +115,7 @@ export 'src/models/http_guard_result.dart';
 export 'src/services/clock_service.dart';
 
 // UI
+export 'src/ui/time_control_overlay.dart';
 export 'src/ui/time_control_panel.dart';
 export 'src/ui/time_control_theme.dart';
 
