@@ -135,7 +135,7 @@ void main() {
 
     test('shared constants are correct', () {
       // Assert
-      expect(kDefaultTimeFontFamily, 'Space Mono');
+      expect(kDefaultTimeFontFamily, 'packages/virtual_clock/Space Mono');
       expect(kDefaultButtonRadius, 10.0);
       expect(kDefaultBadgeRadius, 10.0);
     });
