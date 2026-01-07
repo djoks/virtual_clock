@@ -38,7 +38,8 @@ const kDefaultBadgeRadius = 10.0;
 // =============================================================================
 
 /// Default font family for time display.
-const kDefaultTimeFontFamily = 'Space Mono';
+/// Uses package prefix for proper resolution when used from consuming apps.
+const kDefaultTimeFontFamily = 'packages/virtual_clock/Space Mono';
 
 /// Default font family for labels.
 const kDefaultLabelFontFamily = 'system-ui';
