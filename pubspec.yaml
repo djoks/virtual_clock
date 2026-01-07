@@ -3,7 +3,7 @@ description: >
   A Flutter package for virtual time manipulation and acceleration.
   Perfect for testing time-based features like streaks, daily bonuses,
   and scheduled events without waiting in real-time.
-version: 0.1.0
+version: 1.0.0-dev.1
 homepage: https://github.com/djoks/virtual_clock
 repository: https://github.com/djoks/virtual_clock
 issue_tracker: https://github.com/djoks/virtual_clock/issues
