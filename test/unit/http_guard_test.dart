@@ -14,10 +14,7 @@ void main() {
     test('allows all requests when clock rate is 1', () async {
       // Arrange
       final clockService = ClockService();
-      await clockService.initialize(const ClockConfig(
-        clockRate: 1,
-        httpPolicy: HttpAction.block,
-      ));
+      await clockService.initialize(const ClockConfig());
 
       // Act
       final result = clockService.guardHttpRequest('/api/users');
@@ -46,10 +43,12 @@ void main() {
     test('allows all requests when policy is allow', () async {
       // Arrange
       final clockService = ClockService();
-      await clockService.initialize(const ClockConfig(
-        clockRate: 100,
-        httpPolicy: HttpAction.allow,
-      ));
+      await clockService.initialize(
+        const ClockConfig(
+          clockRate: 100,
+          httpPolicy: HttpAction.allow,
+        ),
+      );
 
       // Act
       final result = clockService.guardHttpRequest('/api/users');
@@ -63,11 +62,13 @@ void main() {
     test('allows requests within throttle limit', () async {
       // Arrange
       final clockService = ClockService();
-      await clockService.initialize(const ClockConfig(
-        clockRate: 100,
-        httpPolicy: HttpAction.throttle,
-        httpThrottleLimit: 5,
-      ));
+      await clockService.initialize(
+        const ClockConfig(
+          clockRate: 100,
+          httpPolicy: HttpAction.throttle,
+          httpThrottleLimit: 5,
+        ),
+      );
 
       // Act & Assert
       for (var i = 0; i < 5; i++) {
@@ -79,11 +80,13 @@ void main() {
     test('blocks requests after throttle limit exceeded', () async {
       // Arrange
       final clockService = ClockService();
-      await clockService.initialize(const ClockConfig(
-        clockRate: 100,
-        httpPolicy: HttpAction.throttle,
-        httpThrottleLimit: 3,
-      ));
+      await clockService.initialize(
+        const ClockConfig(
+          clockRate: 100,
+          httpPolicy: HttpAction.throttle,
+          httpThrottleLimit: 3,
+        ),
+      );
 
       // Use up the limit
       for (var i = 0; i < 3; i++) {
@@ -102,11 +105,13 @@ void main() {
     test('resetHttpThrottle clears throttle counter', () async {
       // Arrange
       final clockService = ClockService();
-      await clockService.initialize(const ClockConfig(
-        clockRate: 100,
-        httpPolicy: HttpAction.throttle,
-        httpThrottleLimit: 2,
-      ));
+      await clockService.initialize(
+        const ClockConfig(
+          clockRate: 100,
+          httpPolicy: HttpAction.throttle,
+          httpThrottleLimit: 2,
+        ),
+      );
 
       // Use up the limit
       clockService.guardHttpRequest('/api/test');
@@ -125,11 +130,12 @@ void main() {
     test('allowedPatterns override default block policy', () async {
       // Arrange
       final clockService = ClockService();
-      await clockService.initialize(const ClockConfig(
-        clockRate: 100,
-        httpPolicy: HttpAction.block,
-        httpAllowedPatterns: ['/health', '/status'],
-      ));
+      await clockService.initialize(
+        const ClockConfig(
+          clockRate: 100,
+          httpAllowedPatterns: ['/health', '/status'],
+        ),
+      );
 
       // Act & Assert
       expect(clockService.guardHttpRequest('/health').allowed, true);
@@ -140,12 +146,14 @@ void main() {
     test('blockedPatterns override allowedPatterns', () async {
       // Arrange
       final clockService = ClockService();
-      await clockService.initialize(const ClockConfig(
-        clockRate: 100,
-        httpPolicy: HttpAction.allow,
-        httpAllowedPatterns: ['/api/*'],
-        httpBlockedPatterns: ['/api/admin*'],
-      ));
+      await clockService.initialize(
+        const ClockConfig(
+          clockRate: 100,
+          httpPolicy: HttpAction.allow,
+          httpAllowedPatterns: ['/api/*'],
+          httpBlockedPatterns: ['/api/admin*'],
+        ),
+      );
 
       // Act & Assert
       expect(clockService.guardHttpRequest('/api/users').allowed, true);
@@ -156,11 +164,12 @@ void main() {
     test('glob patterns with * work correctly', () async {
       // Arrange
       final clockService = ClockService();
-      await clockService.initialize(const ClockConfig(
-        clockRate: 100,
-        httpPolicy: HttpAction.block,
-        httpAllowedPatterns: ['/api/*'],
-      ));
+      await clockService.initialize(
+        const ClockConfig(
+          clockRate: 100,
+          httpAllowedPatterns: ['/api/*'],
+        ),
+      );
 
       // Act & Assert
       expect(clockService.guardHttpRequest('/api/users').allowed, true);
@@ -171,11 +180,12 @@ void main() {
     test('handles special regex characters in patterns', () async {
       // Arrange
       final clockService = ClockService();
-      await clockService.initialize(const ClockConfig(
-        clockRate: 100,
-        httpPolicy: HttpAction.block,
-        httpAllowedPatterns: ['/api/v1.2/test'],
-      ));
+      await clockService.initialize(
+        const ClockConfig(
+          clockRate: 100,
+          httpAllowedPatterns: ['/api/v1.2/test'],
+        ),
+      );
 
       // Act & Assert
       expect(clockService.guardHttpRequest('/api/v1.2/test').allowed, true);
@@ -190,14 +200,15 @@ void main() {
       String? capturedReason;
 
       final clockService = ClockService();
-      await clockService.initialize(ClockConfig(
-        clockRate: 100,
-        httpPolicy: HttpAction.block,
-        onHttpRequestDenied: (path, reason) {
-          capturedPath = path;
-          capturedReason = reason;
-        },
-      ));
+      await clockService.initialize(
+        ClockConfig(
+          clockRate: 100,
+          onHttpRequestDenied: (path, reason) {
+            capturedPath = path;
+            capturedReason = reason;
+          },
+        ),
+      );
 
       // Act
       clockService.guardHttpRequest('/api/users');
@@ -212,14 +223,16 @@ void main() {
       String? capturedReason;
 
       final clockService = ClockService();
-      await clockService.initialize(ClockConfig(
-        clockRate: 100,
-        httpPolicy: HttpAction.throttle,
-        httpThrottleLimit: 1,
-        onHttpRequestDenied: (path, reason) {
-          capturedReason = reason;
-        },
-      ));
+      await clockService.initialize(
+        ClockConfig(
+          clockRate: 100,
+          httpPolicy: HttpAction.throttle,
+          httpThrottleLimit: 1,
+          onHttpRequestDenied: (path, reason) {
+            capturedReason = reason;
+          },
+        ),
+      );
 
       // Use up the limit
       clockService.guardHttpRequest('/api/test');
@@ -236,11 +249,12 @@ void main() {
     test('isHttpRequestAllowed returns correct boolean', () async {
       // Arrange
       final clockService = ClockService();
-      await clockService.initialize(const ClockConfig(
-        clockRate: 100,
-        httpPolicy: HttpAction.block,
-        httpAllowedPatterns: ['/health'],
-      ));
+      await clockService.initialize(
+        const ClockConfig(
+          clockRate: 100,
+          httpAllowedPatterns: ['/health'],
+        ),
+      );
 
       // Act & Assert
       expect(clockService.isHttpRequestAllowed('/health'), true);

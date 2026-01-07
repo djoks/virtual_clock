@@ -85,11 +85,11 @@ void main() {
       });
 
       // Initialize event at 11:00 AM
-      final beforeNoon = DateTime(2026, 1, 7, 11, 0, 0);
+      final beforeNoon = DateTime(2026, 1, 7, 11);
       event.initialize(beforeNoon);
 
       // Act - Check at 12:01 PM (past noon)
-      final afterNoon = DateTime(2026, 1, 7, 12, 1, 0);
+      final afterNoon = DateTime(2026, 1, 7, 12, 1);
       event.checkAndTrigger(afterNoon);
 
       // Assert
@@ -107,11 +107,11 @@ void main() {
       });
 
       // Initialize event at 2 PM (already past noon)
-      final afternoon = DateTime(2026, 1, 7, 14, 0, 0);
+      final afternoon = DateTime(2026, 1, 7, 14);
       event.initialize(afternoon);
 
       // Act - Check at 3 PM (still afternoon, same day)
-      final laterAfternoon = DateTime(2026, 1, 7, 15, 0, 0);
+      final laterAfternoon = DateTime(2026, 1, 7, 15);
       event.checkAndTrigger(laterAfternoon);
 
       // Assert - Should NOT fire since we didn't cross noon

@@ -42,10 +42,12 @@ void main() {
 
       // Act & Assert
       expect(
-        () => clockService.initialize(const ClockConfig(
-          clockRate: 100,
-          isProduction: true,
-        )),
+        () => clockService.initialize(
+          const ClockConfig(
+            clockRate: 100,
+            isProduction: true,
+          ),
+        ),
         throwsException,
       );
     });
@@ -55,7 +57,7 @@ void main() {
     test('returns current time when clock rate is 1', () async {
       // Arrange
       final clockService = ClockService();
-      await clockService.initialize(const ClockConfig(clockRate: 1));
+      await clockService.initialize(const ClockConfig());
 
       // Act
       final before = DateTime.now();
@@ -79,7 +81,7 @@ void main() {
       // Arrange
       final clockService = ClockService();
       await clockService.initialize(const ClockConfig(clockRate: 100));
-      final targetDate = DateTime(2026, 12, 25, 10, 30, 0);
+      final targetDate = DateTime(2026, 12, 25, 10, 30);
 
       // Act
       clockService.timeTravelTo(targetDate);
@@ -175,7 +177,7 @@ void main() {
       // Arrange
       final clockService = ClockService();
       await clockService.initialize(const ClockConfig(clockRate: 100));
-      clockService.timeTravelTo(DateTime(2030, 1, 1));
+      clockService.timeTravelTo(DateTime(2030));
 
       // Act
       await clockService.reset();
@@ -284,10 +286,11 @@ void main() {
     test('cannot change rate in production mode', () async {
       // Arrange
       final clockService = ClockService();
-      await clockService.initialize(const ClockConfig(
-        clockRate: 1,
-        isProduction: true,
-      ));
+      await clockService.initialize(
+        const ClockConfig(
+          isProduction: true,
+        ),
+      );
 
       // Act
       clockService.setClockRate(500);

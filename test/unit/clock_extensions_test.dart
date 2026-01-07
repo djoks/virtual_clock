@@ -155,10 +155,10 @@ void main() {
     test('extensions accept optional clockService parameter', () async {
       // Arrange
       final otherClock = ClockService();
-      await otherClock.initialize(const ClockConfig(clockRate: 100));
-      otherClock.timeTravelTo(DateTime(2030, 1, 1));
+      await otherClock.initialize(const ClockConfig());
+      otherClock.timeTravelTo(DateTime(2030));
 
-      final date = DateTime(2030, 1, 1, 12, 0);
+      final date = DateTime(2030, 1, 1, 12);
 
       // Act & Assert
       expect(date.isVirtualToday(otherClock), true);
