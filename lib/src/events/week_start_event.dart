@@ -27,10 +27,13 @@ class WeekStartEvent extends ClockEvent {
   /// Calculate ISO week number (weeks start on Monday).
   int _getIsoWeekNumber(DateTime date) {
     // Find the Thursday of this week (ISO 8601 week definition)
+    // ignore: avoid_redundant_argument_values
     final thursday = date.add(Duration(days: DateTime.thursday - date.weekday));
+    // ignore: avoid_redundant_argument_values
     final firstThursday = DateTime(thursday.year, 1, 1);
 
     // If Jan 1 is not a Thursday, find the first Thursday
+    // ignore: avoid_redundant_argument_values
     final daysToAdd = (DateTime.thursday - firstThursday.weekday + 7) % 7;
     final firstThursdayOfYear = firstThursday.add(Duration(days: daysToAdd));
 
